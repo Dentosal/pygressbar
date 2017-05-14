@@ -22,7 +22,7 @@ with PercentageProgressBar(50, show_value=True) as pb:
     for part in range(PARTS):
         time.sleep(0.5)
         pb.update(100*(part+1)/PARTS)
-print("Downdloaded")
+print("Done")
 
 print("Downloading a few smaller files:")
 PARTS = 7
