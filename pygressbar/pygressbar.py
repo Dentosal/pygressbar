@@ -221,3 +221,20 @@ class ValueProgressBar(ProgressBar):
     def update(self, value):
         assert len(self.text_for(value)) == self.width
         self._text.update(self.text_for(value))
+
+class MultiProgressBar(ProgressBar):
+    def __init__(self, subbars):
+        assert isinstance(subbars, (list, tuple))
+
+        super().__init__(
+            width=sum(sb.width for sb in subbars) + len(subbars) - 1
+        )
+
+        self.bars = subbars
+
+    def text_for(self, *values):
+        assert len(self.bars) == len(values)
+        return " ".join([b.text_for(v) for b, v in zip(self.bars, values)])
+
+    def update(self, *values):
+        self._text.update(self.text_for(*values))

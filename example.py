@@ -1,6 +1,6 @@
 import time
 import random
-from pygressbar import IndeterminateProgressBar, PercentageProgressBar, ValueProgressBar
+from pygressbar import IndeterminateProgressBar, PercentageProgressBar, ValueProgressBar, MultiProgressBar
 
 print("Processing order... ", end="")
 with IndeterminateProgressBar(8).background:
@@ -37,17 +37,17 @@ top_level_bar.clear_text()
 print("Done")
 
 print("Downloading a few big files:")
-FILES = 7
-PARTS = 7
-top_level_bar = ValueProgressBar(7, 25, show_value=True)
-print(top_level_bar.text_for(0), end="")
-for fp in range(FILES):
-    with PercentageProgressBar(25, show_value=True) as pb:
-        pb.update(0)
+with MultiProgressBar([
+    ValueProgressBar(7, 25, show_value=True),
+    PercentageProgressBar(25, show_value=True)
+]) as pbs:
+    FILES = 7
+    PARTS = 7
+    for fp in range(FILES):
+        time.sleep(0.5)
+        pbs.update(fp, 0)
         for part in range(PARTS):
             time.sleep(0.2)
-            pb.update((part+1)/PARTS * 100)
-    top_level_bar.clear_text()
-    print(top_level_bar.text_for(fp+1), end="")
-top_level_bar.clear_text()
+            pbs.update(fp, (part+1)/PARTS * 100)
+        pbs.update(fp+1, 100)
 print("Done")
