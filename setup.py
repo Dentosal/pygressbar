@@ -1,11 +1,14 @@
-from distutils.core import setup
+from setuptools import setup
+
 setup(
     name="pygressbar",
     version="0.1.0",
     author="Hannes Karppila",
     license="MIT",
     url="https://github.com/Dentosal/pygressbar",
-    py_modules=["pygressbar"],
+    packages=["pygressbar"],
+    package_data={"": ["LICENSE"]},
+    install_requires=["requests"],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Console",
