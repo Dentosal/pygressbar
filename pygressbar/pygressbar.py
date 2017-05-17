@@ -152,7 +152,10 @@ class ValueProgressBar(ProgressBar):
         else:
             return "[" + progress * self.char + (self.content_width - progress) * self.bc_char + "]"
 
-    def update(self, value):
+    def update(self, value, update_max_value=None):
+        if update_max_value is not None:
+            assert isinstance(update_max_value, (int, float))
+            self.max_value = update_max_value
         assert len(self.text_for(value)) == self.width
         self._text.update(self.text_for(value))
 
