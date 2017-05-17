@@ -2,93 +2,19 @@ import time
 import threading
 import sys
 
-class WrappedOutput(object):
-    """Adds a callback for stdout operations."""
-    def __init__(self, before=None, after=None):
-        assert before is None or callable(before)
-        assert after is None or callable(after)
-        self.before = before
-        self.after = after
-
-        sys.stdout = self
-
-    def stop(self):
-        sys.stdout.flush()
-        sys.stdout = sys.__stdout__
-
-    def write(self, text):
-        if self.before:
-            x = self.before()
-
-        sys.__stdout__.write(text)
-
-        if self.after:
-            self.after()
-
-    def put(self, text):
-        sys.__stdout__.write(text)
-
-    def __getattr__(self, name):
-        """Pass through all stdin."""
-        return getattr(sys.__stdout__, name)
-
-class DynamicText(object):
-    def __init__(self, text=""):
-        self._text = text
-        self._drawn = False
-        self._output = WrappedOutput(
-            self.hide_before_print,
-            self.show_after_print
-        )
-
-    @property
-    def text(self):
-        return self._text
-
-    def hide_before_print(self):
-        self.clear()
-
-    def show_after_print(self):
-        self._drawn = False
-        self.update()
-
-    def stop(self):
-        self._output.stop()
-
-    def jump_start(self, flush=False):
-        self._output.put("\b"*len(self._text))
-        if flush:
-            self._output.flush()
-
-    def clear(self, flush=True):
-        self.jump_start()
-        self._output.put(" " * len(self._text))
-        self.jump_start()
-        if flush:
-            self._output.flush()
-
-    def update(self, newtext=None):
-        if self._drawn:
-            self.jump_start()
-
-        if newtext is not None:
-            self._text = newtext
-
-        self._output.put(self._text)
-        self._output.flush()
-        self._drawn = True
+from .io import DynamicText
 
 class ProgressBar(object):
     locked = False
 
     def __init__(self, width=10, char="|", bc_char=" "):
-        assert width >= 4
+        assert (isinstance(width, int) and width >= 4) or isinstance(width, property)
         assert len(char) == 1
         assert isinstance(char, str)
         assert len(bc_char) == 1
         assert isinstance(bc_char, str)
 
-        self.width = width
+        self._width = width
         if self.content_width < 10:
             self.bar_count = max(1, int((self.content_width) / 2))
         else:
@@ -97,8 +23,16 @@ class ProgressBar(object):
         self.bc_char = bc_char
 
     @property
+    def width(self):
+        return self._width
+
+    @property
     def content_width(self):
         return self.width - 2
+
+    @property
+    def dynamic(self):
+        return hasattr(self, "_text")
 
     def text_for(self, *args):
         raise NotImplementeError
@@ -226,11 +160,39 @@ class MultiProgressBar(ProgressBar):
     def __init__(self, subbars):
         assert isinstance(subbars, (list, tuple))
 
-        super().__init__(
-            width=sum(sb.width for sb in subbars) + len(subbars) - 1
-        )
-
         self.bars = subbars
+        super().__init__()
+
+    @property
+    def width(self):
+        return sum(sb.width for sb in self.bars) + len(self.bars) - 1
+
+    def add(self, item):
+        self.bars.append(item)
+
+    def remove_all(self):
+        if self.dynamic:
+            self._text.clear()
+        sys.stdout.flush()
+        time.sleep(2)
+
+        self.bars = []
+
+    def remove_first(self):
+        assert self.bars
+
+        if self.dynamic:
+            self._text.clear()
+
+        self.bars.pop(0)
+
+    def remove_last(self):
+        assert self.bars
+
+        if self.dynamic:
+            self._text.clear()
+
+        self.bars.pop()
 
     def text_for(self, *values):
         assert len(self.bars) == len(values)
