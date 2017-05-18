@@ -17,12 +17,12 @@ with IndeterminateProgressBar(width=10).background:
         print("[OK]")
 
 print("Downloading a large file:")
-with PercentageProgressBar(width=50, show_value=True) as pb:
+PARTS = 7
+with PercentageProgressBar(PARTS, width=50, show_value=True) as pb:
     pb.update(0)
-    PARTS = 7
     for part in range(PARTS):
         time.sleep(0.2)
-        pb.update(100*(part+1)/PARTS)
+        pb.update(part+1)
 print("Done")
 
 print("Downloading a few smaller files:")
@@ -42,15 +42,15 @@ PARTS = 6
 print("Downloading a few big files:")
 with MultiProgressBar([
     ValueProgressBar(FILES, width=25, show_value=True),
-    PercentageProgressBar(width=25, show_value=True)
+    PercentageProgressBar(PARTS, width=25, show_value=True)
 ]) as pbs:
     for fp in range(FILES):
         time.sleep(0.2)
         pbs.update(fp, 0)
         for part in range(PARTS):
             time.sleep(0.2)
-            pbs.update(fp, (part+1)/PARTS * 100)
-        pbs.update(fp+1, 100)
+            pbs.update(fp, part+1)
+        pbs.update(fp+1, PARTS)
 
     pbs.remove_all()
     pbs.update()
