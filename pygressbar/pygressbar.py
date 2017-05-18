@@ -148,7 +148,7 @@ class PercentageProgressBar(ValueProgressBar):
         progress = int((value * self.content_width) // self.max_value)
         if self.content_width > 20 and self.show_value:
             text = list(progress * self.char + (self.content_width - progress) * self.bc_char)
-            return "[" + ProgressBar._text_label(text, str(int(value)) + "%") + "]"
+            return "[" + ProgressBar._text_label(text, str(int(self)) + "%") + "]"
         else:
             return "[" + progress * self.char + (self.content_width - progress) * self.bc_char + "]"
 

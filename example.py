@@ -38,7 +38,7 @@ top_level_bar.clear_text()
 print("Done")
 
 FILES = 3
-PARTS = 6
+PARTS = 200
 print("Downloading a few big files:")
 with MultiProgressBar([
     ValueProgressBar(FILES, width=25, show_value=True),
@@ -48,7 +48,7 @@ with MultiProgressBar([
         time.sleep(0.2)
         pbs.update(fp, 0)
         for part in range(PARTS):
-            time.sleep(0.2)
+            time.sleep(0.002)
             pbs.update(fp, part+1)
         pbs.update(fp+1, PARTS)
 
@@ -58,8 +58,8 @@ with MultiProgressBar([
     print("Processing... ", end="")
     sys.stdout.flush()
 
-    pbs.add(PercentageProgressBar(width=25, show_value=True))
-    for x in range(100):
+    pbs.add(PercentageProgressBar(1000, width=25, show_value=True))
+    for x in range(1000):
         pbs.update(x)
-        time.sleep(0.02)
+        time.sleep(0.005)
 print("Done")
