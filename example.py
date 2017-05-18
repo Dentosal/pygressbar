@@ -10,14 +10,14 @@ print("Complete")
 
 print("Processing a list of languages: ")
 LANGUAGES = ("Python", "Rust", "Scala", "C")
-with IndeterminateProgressBar(10).background:
+with IndeterminateProgressBar(width=10).background:
     for l in LANGUAGES:
         print("* " + l + " " * (max(map(len, LANGUAGES)) - len(l)) + " ", end="")
         time.sleep(1)
         print("[OK]")
 
 print("Downloading a large file:")
-with PercentageProgressBar(50, show_value=True) as pb:
+with PercentageProgressBar(width=50, show_value=True) as pb:
     pb.update(0)
     PARTS = 7
     for part in range(PARTS):
@@ -27,9 +27,9 @@ print("Done")
 
 print("Downloading a few smaller files:")
 PARTS = 7
-top_level_bar = ValueProgressBar(7, 50, show_value=True)
+top_level_bar = ValueProgressBar(7, width=50, show_value=True)
 print(top_level_bar.text_for(0), end="")
-with IndeterminateProgressBar(10).background:
+with IndeterminateProgressBar(width=10).background:
     for part in range(PARTS):
         time.sleep(0.5)
         top_level_bar.clear_text()
@@ -41,8 +41,8 @@ FILES = 3
 PARTS = 6
 print("Downloading a few big files:")
 with MultiProgressBar([
-    ValueProgressBar(FILES, 25, show_value=True),
-    PercentageProgressBar(25, show_value=True)
+    ValueProgressBar(FILES, width=25, show_value=True),
+    PercentageProgressBar(width=25, show_value=True)
 ]) as pbs:
     for fp in range(FILES):
         time.sleep(0.2)
@@ -58,7 +58,7 @@ with MultiProgressBar([
     print("Processing... ", end="")
     sys.stdout.flush()
 
-    pbs.add(PercentageProgressBar(25, show_value=True))
+    pbs.add(PercentageProgressBar(width=25, show_value=True))
     for x in range(100):
         pbs.update(x)
         time.sleep(0.02)

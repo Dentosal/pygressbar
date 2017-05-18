@@ -108,27 +108,6 @@ class IndeterminateProgressBar(ProgressBar):
     def background(self):
         return BackgroundUpdatable(self)
 
-class PercentageProgressBar(ProgressBar):
-    def __init__(self, *args, show_value=False, **kwargs):
-        assert isinstance(show_value, bool)
-        super().__init__(*args, **kwargs)
-
-        self.show_value = show_value
-
-    def text_for(self, value):
-        assert isinstance(value, (int, float))
-        assert 0 <= value <= 100
-        progress = int((value * self.content_width) // 100)
-        if self.content_width > 20 and self.show_value:
-            text = list(progress * self.char + (self.content_width - progress) * self.bc_char)
-            return "[" + ProgressBar._text_label(text, str(int(value)) + "%") + "]"
-        else:
-            return "[" + progress * self.char + (self.content_width - progress) * self.bc_char + "]"
-
-    def update(self, value):
-        assert len(self.text_for(value)) == self.width
-        self._text.update(self.text_for(value))
-
 class ValueProgressBar(ProgressBar):
     def __init__(self, max_value, *args, show_value=False, **kwargs):
         assert isinstance(show_value, bool)
@@ -158,6 +137,20 @@ class ValueProgressBar(ProgressBar):
             self.max_value = update_max_value
         assert len(self.text_for(value)) == self.width
         self._text.update(self.text_for(value))
+
+class PercentageProgressBar(ValueProgressBar):
+    def __init__(self, max_value=100, *args, **kwargs):
+        super().__init__(max_value, *args, **kwargs)
+
+    def text_for(self, value):
+        assert isinstance(value, (int, float))
+        assert 0 <= value <= self.max_value
+        progress = int((value * self.content_width) // self.max_value)
+        if self.content_width > 20 and self.show_value:
+            text = list(progress * self.char + (self.content_width - progress) * self.bc_char)
+            return "[" + ProgressBar._text_label(text, str(int(value)) + "%") + "]"
+        else:
+            return "[" + progress * self.char + (self.content_width - progress) * self.bc_char + "]"
 
 class MultiProgressBar(ProgressBar):
     def __init__(self, subbars):
